@@ -1,0 +1,4 @@
+- hosts: localhost
+  become: true
+  roles:
+  - role: ethereum_auth_jwt

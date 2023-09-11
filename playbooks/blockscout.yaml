@@ -1,0 +1,16 @@
+- hosts: blockscout
+  become: true
+  roles:
+  # Docker. Required dependency
+  - role: geerlingguy.docker
+    tags: [docker]
+  - role: geerlingguy.pip
+    pip_install_packages:
+    - name: docker
+    tags: [docker]
+  # Blockscout explorer
+  - role: blockscout
+    blockscout_container_env:
+      ETHEREUM_JSONRPC_VARIANT: geth
+      ETHEREUM_JSONRPC_HTTP_URL: http://your-geth-node:8545/
+    tags: [blockscout]

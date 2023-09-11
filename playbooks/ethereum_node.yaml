@@ -1,0 +1,10 @@
+- hosts: localhost
+  become: true
+  roles:
+  - role: geerlingguy.docker
+  - role: geerlingguy.pip
+    pip_install_packages:
+    - name: docker
+  - role: ethereum_node
+    ethereum_node_el: geth
+    ethereum_node_cl: lighthouse

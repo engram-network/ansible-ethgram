@@ -1,0 +1,86 @@
+nimbus_user: nimbus
+nimbus_datadir: /data/nimbus
+nimbus_auth_jwt_path: /data/execution-auth.secret
+nimbus_execution_engine_endpoint: http://geth:8551
+nimbus_announced_ip: "{{ ansible_host }}"
+
+nimbus_cleanup: false # when set to "true" it will remove the container
+
+nimbus_ports_p2p_tcp: 9000
+nimbus_ports_p2p_udp: 9000
+nimbus_ports_http_beacon: 5051
+nimbus_ports_metrics: 8008
+
+nimbus_validator_enabled: false
+nimbus_validator_fee_recipient: "0xF29Ff96aaEa6C9A1fBa851f74737f3c069d4f1a9" # theprotocolguild.eth
+nimbus_validator_datadir: /data/nimbus-validator
+
+################################################################################
+##
+## Checkpoint sync container configuration
+##
+################################################################################
+checkpoint_sync_url: https://beaconstate.ethstaker.cc
+nimbus_checkpoint_container_name: nimbus_checkpoint
+nimbus_checkpoint_container_command:
+  - trustedNodeSync
+  - --data-dir=/data
+nimbus_checkpoint_container_command_extra_args:
+  - --trusted-node-url={{ checkpoint_sync_url }}
+  - --network=mainnet
+  - --backfill=false
+nimbus_checkpoint_sync_enabled: false
+nimbus_checkpoint_autoremove_enabled: false
+################################################################################
+##
+## Beacon node container configuration
+##
+################################################################################
+nimbus_container_name: nimbus
+nimbus_container_image: statusim/nimbus-eth2:amd64-latest
+nimbus_container_env: {}
+nimbus_container_ports:
+  - "127.0.0.1:{{ nimbus_ports_http_beacon }}:{{ nimbus_ports_http_beacon }}"
+  - "{{ nimbus_ports_p2p_tcp }}:{{ nimbus_ports_p2p_tcp }}"
+  - "{{ nimbus_ports_p2p_udp }}:{{ nimbus_ports_p2p_udp }}/udp"
+nimbus_container_volumes:
+  - "{{ nimbus_datadir }}:/data"
+  - "{{ nimbus_auth_jwt_path }}:/execution-auth.jwt:ro"
+nimbus_container_security_opts: []
+nimbus_container_stop_timeout: "300"
+nimbus_container_networks: []
+nimbus_container_command:
+  - --non-interactive=true
+  - --data-dir=/data
+  - --log-level=INFO
+  - --listen-address=0.0.0.0
+  - --udp-port={{ nimbus_ports_p2p_udp }}
+  - --tcp-port={{ nimbus_ports_p2p_tcp }}
+  - --nat=extip:{{ nimbus_announced_ip }}
+  - --enr-auto-update=false
+  - --rest
+  - --rest-port={{ nimbus_ports_http_beacon }}
+  - --rest-address=0.0.0.0
+  - --rest-allow-origin=*
+  - --web3-url={{ nimbus_execution_engine_endpoint }}
+  - --jwt-secret=/execution-auth.jwt
+  - --metrics
+  - --metrics-port={{ nimbus_ports_metrics }}
+  - --metrics-address=0.0.0.0
+nimbus_container_command_extra_args: []
+  # - --graffiti=hello-world
+
+################################################################################
+##
+## Validator specific configuration
+##
+################################################################################
+nimbus_container_validator_args:
+  - --validators-dir=/validator-data/keys
+  - --secrets-dir=/validator-data/secrets
+  - --suggested-fee-recipient={{ nimbus_validator_fee_recipient }}
+nimbus_container_validator_volumes:
+  - "{{ nimbus_validator_datadir }}:/validator-data"
+
+# Default image pull policy
+nimbus_container_pull: false

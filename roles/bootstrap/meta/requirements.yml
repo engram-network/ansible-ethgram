@@ -1,0 +1,9 @@
+roles:
+  - src: robertdebock.bootstrap
+    version: "5.2.5"
+
+collections:
+  - name: ansible.posix
+    version: ">=1.0.0,<2.0.0"
+  - name: community.general
+    version: ">=6.0.0,<7.0.0"

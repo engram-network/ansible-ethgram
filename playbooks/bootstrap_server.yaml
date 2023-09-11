@@ -1,0 +1,33 @@
+- name: "Bootstrap the server"
+  hosts: "{{ target | default('all') }}"
+  serial: "{{ batch_count | default('100%') }}"
+  become: true
+  gather_facts: false
+  roles:
+    - role: ethpandaops.general.bootstrap
+      tags: [bootstrap]
+      oh_my_zsh_user: gitpod
+      oh_my_zsh_theme: agnoster
+      oh_my_zsh_plugins: asdf git github golang ubuntu
+
+- name: "Configure zsh for the default ansible user"
+  hosts: "{{ target | default('all') }}"
+  serial: "{{ batch_count | default('100%') }}"
+  become: true
+  roles:
+    - role: ethpandaops.general.oh_my_zsh
+      tags: ["oh_my_zsh"]
+      oh_my_zsh_user: gitpod
+      oh_my_zsh_theme: agnoster
+      oh_my_zsh_plugins: asdf git github golang ubuntu
+
+- name: "Configure zsh for the gitpod user"
+  hosts: "{{ target | default('all') }}"
+  serial: "{{ batch_count | default('100%') }}"
+  become: true
+  roles:
+    - role: ethpandaops.general.oh_my_zsh
+      oh_my_zsh_user: gitpod
+      oh_my_zsh_theme: agnoster
+      oh_my_zsh_plugins: asdf git github golang ubuntu
+      tags: ["oh_my_zsh"]
